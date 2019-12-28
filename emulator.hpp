@@ -11,6 +11,7 @@ extern void setup(void);
 extern void loop(void);
 
 extern void digitalWrite(int pin, int state);
+extern int digitalRead(int pin);
 extern void pinMode(int pin, int mode);
 
 unsigned long micros(void);

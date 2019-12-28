@@ -9,6 +9,7 @@ public:
     typedef unsigned long timestamp_type;
     typedef unsigned int identifier_type;
     typedef unsigned int duration_type;
+    typedef void (*callback_type)(identifier_type, void *, void *);
 
 protected:
     struct timeslot
@@ -17,6 +18,7 @@ protected:
         duration_type duration;
         unsigned long identifier;
         unsigned int flags;
+        callback_type callback;
         void *opaque;
 
         TAILQ_ENTRY(timeslot) next;
@@ -37,7 +39,7 @@ public:
         return micros();
     }
 
-    bool repeat(identifier_type identifier, duration_type duration, void *opaque)
+    bool repeat(identifier_type identifier, duration_type duration, callback_type callback, void *opaque)
     {
         bool rv = false;
         struct timeslot *node = allocate_timeslot();
@@ -47,6 +49,7 @@ public:
             node->start_timestamp = timestamp_useconds();
             node->duration = duration;
             node->identifier = identifier;
+            node->callback = callback;
             node->opaque = opaque;
             node->flags |= TIMER_REPEAT;
 
@@ -58,7 +61,7 @@ public:
         return rv;
     }
 
-    bool start(identifier_type identifier, duration_type duration, void *opaque)
+    bool start(identifier_type identifier, duration_type duration, callback_type callback, void *opaque)
     {
         bool rv = false;
         struct timeslot *node = allocate_timeslot();
@@ -68,6 +71,7 @@ public:
             node->start_timestamp = timestamp_useconds();
             node->duration = duration;
             node->identifier = identifier;
+            node->callback = callback;
             node->opaque = opaque;
             node->flags = 0;
 
@@ -102,8 +106,9 @@ public:
         }
     }
 
-    void update(void (*callback)(identifier_type, void *, void *), timestamp_type timestamp = micros())
+    void update(timestamp_type timestamp = micros())
     {
+#if 0
         while(!TAILQ_EMPTY(&active_list))
         {
             struct timeslot *node = TAILQ_FIRST(&active_list);
@@ -112,12 +117,19 @@ public:
             {
                 TAILQ_REMOVE(&active_list, node, next);
 
-                callback(node->identifier, node->opaque, nullptr);
+                if(node->callback != nullptr)
+                {
+                    node->callback(node->identifier, node->opaque, nullptr);
+                }
 
                 if(node->flags & TIMER_REPEAT)
                 {
                     node->start_timestamp = timestamp;
                     TAILQ_INSERT_TAIL(&active_list, node, next);
+                }
+                else
+                {
+                    release_timeslot(node);
                 }
             }
             else
@@ -125,6 +137,32 @@ public:
                 break;
             }
         }
+#else
+        struct timeslot *node = nullptr;
+
+        TAILQ_FOREACH(node, &active_list, next)
+        {
+            if(timer_expired(node, timestamp))
+            {
+                TAILQ_REMOVE(&active_list, node, next);
+
+                if(node->callback != nullptr)
+                {
+                    node->callback(node->identifier, node->opaque, nullptr);
+                }
+
+                if(node->flags & TIMER_REPEAT)
+                {
+                    node->start_timestamp = timestamp;
+                    TAILQ_INSERT_TAIL(&active_list, node, next);
+                }
+                else
+                {
+                    release_timeslot(node);
+                }
+            }
+        }
+#endif
     }
 
     void clear(void)

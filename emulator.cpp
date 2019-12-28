@@ -77,6 +77,8 @@ static uint64_t nanoseconds_elapsed(void)
 class emulator
 {
 public:
+    typedef enum { WHITE, GREEN, RED, BLUE } color_type;
+
     emulator() :
         screen_(nullptr)
     {
@@ -84,12 +86,14 @@ public:
         wclear(screen_);
 
         start_color();
-        init_pair(0, COLOR_WHITE, COLOR_BLACK);
-        init_pair(1, COLOR_GREEN, COLOR_BLACK);
-        init_pair(2, COLOR_RED, COLOR_BLACK);
+        init_pair(WHITE, COLOR_WHITE, COLOR_BLACK);
+        init_pair(GREEN, COLOR_GREEN, COLOR_BLACK);
+        init_pair(RED, COLOR_RED, COLOR_BLACK);
+        init_pair(BLUE, COLOR_BLUE, COLOR_WHITE);
 
         for(auto i = 0; i < 16; ++i)
         {
+            wattrset(screen_, A_NORMAL | COLOR_PAIR(WHITE));
             mvwaddch(screen_, digital_pin_y + i, digital_pin_x + 0, 'D');
             mvwaddch(screen_, digital_pin_y + i, digital_pin_x + 1, (i < 10) ? '0' + i : 'A' + (i - 10));
 
@@ -113,22 +117,22 @@ public:
         switch(state)
         {
         case HIGH:
-            wattrset(screen_, A_REVERSE | COLOR_PAIR(1));
+            wattrset(screen_, A_REVERSE | COLOR_PAIR(GREEN));
             mvwaddch(screen_, pin + digital_pin_y, digital_pin_x + 4, ' ');
             wattrset(screen_, A_NORMAL | COLOR_PAIR(0));
             break;
 
         case LOW:
-            wattrset(screen_, A_REVERSE | COLOR_PAIR(2));
+            wattrset(screen_, A_REVERSE | COLOR_PAIR(RED));
             mvwaddch(screen_, pin + digital_pin_y, digital_pin_x + 4, ' ');
             wattrset(screen_, A_NORMAL | COLOR_PAIR(0));
             break;
         }
     }
 
-    void read(int pin)
+    int read(int pin)
     {
-
+        return LOW;
     }
 
 private:
@@ -145,12 +149,17 @@ static bool running = true;
 
 void pinMode(int pin, int mode)
 {
-    
+
 }
 
 void digitalWrite(int pin, int state)
 {
     e.write(pin, state);
+}
+
+int digitalRead(int pin)
+{
+    return e.read(pin);
 }
 
 unsigned long micros(void)

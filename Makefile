@@ -1,20 +1,19 @@
 CXX=g++
 CXXFLAGS=-g -std=c++0x -Werror -Wall
 
-TARGET=gerwalk
-SOURCES=\
-	morse.cc \
-	gerwalk.cc \
-	arduino.cc \
-	main.cc
+EMULATOR=emulator
+EMULATOR_SOURCES=\
+	morse.cpp \
+	gerwalk.cpp \
+	emulator.cpp
 
-OBJECTS=$(SOURCES:%.cc=%.o)
+EMULATOR_OBJECTS=$(EMULATOR_SOURCES:%.cpp=%.o)
 
-$(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(@) $(^)
+$(EMULATOR): $(EMULATOR_OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $(@) $(^) -lcurses
 
-%.o: %.cc
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $(@) $(<)
 
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -f $(EMULATOR_OBJECTS) $(EMULATOR_TARGET)

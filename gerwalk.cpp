@@ -1,5 +1,5 @@
 #include <iostream>
-#include "timer.h"
+#include "timer.hpp"
 
 typedef unsigned int digital_pin_t;
 
@@ -18,12 +18,20 @@ static void timer_callback(
         void *opaque,
         void *context)
 {
-    std::cout << "timeout : " << identifier << ", " << opaque << ", " << context << std::endl;
+    static bool toggle = false;
+
+    toggle = !toggle;
+    digitalWrite(0, toggle ? HIGH : LOW);
 }
 
 void setup(void)
 {
-    t.repeat(123, 5000000, nullptr);
+    for(digital_pin_t i = 0; i < 16; ++i)
+    {
+        pinMode(i, OUTPUT);
+    }
+
+    t.repeat(123, 500000, nullptr);
 }
 
 void loop(void)

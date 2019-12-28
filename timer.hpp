@@ -1,4 +1,4 @@
-#include "arduino.h"
+#include "emulator.hpp"
 #include "queue.h"
 
 #define TIMER_REPEAT 0x1

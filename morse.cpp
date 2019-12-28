@@ -2,7 +2,7 @@
 
 void morse_encode_character(
     char c,
-    void (*emit)(enum morse_e morse, void *context),
+    morse_callback_t emit,
     void *context)
 {
     switch (c)
@@ -116,12 +116,64 @@ void morse_encode_character(
         emit(MORSE_DASH, context);
         emit(MORSE_DOT, context);
         break;
+
+    case 's': case 'S':
+        emit(MORSE_DOT, context);
+        emit(MORSE_DOT, context);
+        emit(MORSE_DOT, context);
+        break;
+
+    case 't': case 'T':
+        emit(MORSE_DASH, context);
+        break;
+
+    case 'u': case 'U':
+        emit(MORSE_DOT, context);
+        emit(MORSE_DOT, context);
+        emit(MORSE_DASH, context);
+        break;
+
+    case 'v': case 'V':
+        emit(MORSE_DOT, context);
+        emit(MORSE_DOT, context);
+        emit(MORSE_DOT, context);
+        emit(MORSE_DASH, context);
+        break;
+
+    case 'w': case 'W':
+        emit(MORSE_DOT, context);
+        emit(MORSE_DASH, context);
+        emit(MORSE_DASH, context);
+        break;
+
+    case 'x': case 'X':
+        emit(MORSE_DASH, context);
+        emit(MORSE_DOT, context);
+        emit(MORSE_DOT, context);
+        emit(MORSE_DASH, context);
+        break;
+
+    case 'y': case 'Y':
+        emit(MORSE_DASH, context);
+        emit(MORSE_DOT, context);
+        emit(MORSE_DASH, context);
+        emit(MORSE_DASH, context);
+        break;
+
+    case 'z': case 'Z':
+        emit(MORSE_DASH, context);
+        emit(MORSE_DASH, context);
+        emit(MORSE_DOT, context);
+        emit(MORSE_DOT, context);
+        break;   
     }
+
+    emit(MORSE_EOC, context);
 }
 
 void morse_encode_string(
     char const *string,
-    void (*emit)(enum morse_e, void *context),
+    morse_callback_t emit,
     void *context)
 {
     char const *pos = string;

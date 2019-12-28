@@ -139,8 +139,9 @@ public:
         }
 #else
         struct timeslot *node = nullptr;
+        struct timeslot *tnode = nullptr;
 
-        TAILQ_FOREACH(node, &active_list, next)
+        TAILQ_FOREACH_SAFE(node, &active_list, next, tnode)
         {
             if(timer_expired(node, timestamp))
             {
